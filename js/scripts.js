@@ -1,110 +1,109 @@
 $(function() {
-    function randomString() {
-    var chars = '0123456789abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXTZ';
-    var str = '';
-    for (var i = 0; i < 10; i++) {
-        str += chars[Math.floor(Math.random() * chars.length)];
+	function randomString() {
+   		var chars = '0123456789abcdefghiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXTZ';
+    	var str = '';
+    	for (var i = 0; i < 10; i++) {
+        	str += chars[Math.floor(Math.random() * chars.length)];
+    	}
+    	return str;
     }
-    return str;
-	}
+    	function Column(name) {
+		    var self = this; // useful for nested functions
 
-	function Column(name) {
-	    var self = this; 
+		    this.id = randomString();
+		    this.name = name;
+		    this.$element = createColumn();
 
-	    this.id = randomString();
-	    this.name = name;
-	    this.$element = createColumn();
+		    function createColumn() {
+		    	// here is the code for creating the column, which you will find below
+			    var $column = $('<div>').addClass('column');
+				var $columnTitle = $('<h2>').addClass('column-title').text(self.name);
+				var $columnCardList = $('<ul>').addClass('column-card-list');
+				var $columnDelete = $('<button>').addClass('btn-delete').text('x');
+				var $columnAddCard = $('<button>').addClass('add-card').text('Add a card');
+			    
+			    $columnDelete.click(function() {
+				        self.removeColumn();
+				});
+				//Add a note after clicking on the button:
+				    $columnAddCard.click(function() {
+				        self.addCard(new Card(prompt("Enter the name of the card")));
+				});
+		    	// CONSTRUCTION COLUMN ELEMENT
+			    $column.append($columnTitle)
+			        .append($columnDelete)
+			        .append($columnAddCard)
+			        .append($columnCardList);
 
-	    function createColumn() {
-	    	var $column = $('<div>').addClass('column');
-			var $columnTitle = $('<h2>').addClass('column-title').text(self.name);
-			var $columnCardList = $('<ul>').addClass('column-card-list');
-			var $columnDelete = $('<button>').addClass('btn-delete').text('x');
-			var $columnAddCard = $('<button>').addClass('add-card').text('Add a card');
-
-			$columnDelete.click(function() {
-        		self.removeColumn();
-			});
-			
-    		$columnAddCard.click(function() {
-        			self.addCard(new Card(prompt("Enter the name of the card")));
-			});
-
-			$column.append($columnTitle)
-		        .append($columnDelete)
-		        .append($columnAddCard)
-		        .append($columnCardList);
-
-		    return $column;
+			    // RETURN OF CREATED COLUMN
+			    return $column;
+			}
 		}
-		    Column.prototype = {
+
+		Column.prototype = { // pod klasą Column?
 			    addCard: function(card) {
-			     	this.$element.children('ul').append(card.$element);
+			      this.$element.children('ul').append(card.$element);
 			    },
 			    removeColumn: function() {
-			     	this.$element.remove();
+			      this.$element.remove();
 			    }
-			};
+		};
+		
 
-			function Card(description) {
-				var self = this;
+		function Card(description) {
+			var self = this;
 
-			    this.id = randomString();
-			    this.description = description;
-			    this.$element = createCard();
+		    this.id = randomString();
+		    this.description = description;
+		    this.$element = createCard();
 
-			    function createCard() {
-			    	var $card = $('<li>').addClass('card');
-				    var $cardDescription = $('<p>').addClass('card-description').text(self.description);
-				    var $cardDelete = $('<button>').addClass('btn-delete').text('x');
-			    
-				    $cardDelete.click(function(){
-					    self.removeCard();
-					});
+		    function createCard() {
+		    	// Implementation of card creation
+		    	var $card = $('<li>').addClass('card');
+			    var $cardDescription = $('<p>').addClass('card-description').text(self.description);
+			    var $cardDelete = $('<button>').addClass('btn-delete').text('x');
+		    	
+		    	$cardDelete.click(function(){
+				        self.removeCard();
+				});
 
-					$card.append($cardDelete)
-						.append($cardDescription);
-					return $card;
+				$card.append($cardDelete)
+					.append($cardDescription);
+				
+				return $card;
 
-			    }
-			}
-
-			Card.prototype = { // czy na pewno tu
-				removeCard: function() {
-					this.$element.remove();
+				Card.prototype = {
+					removeCard: function() {
+						this.$element.remove();
+				}
 				}
 			}
+		}
 
-			var board = {
-			    name: 'Kanban Board',
-			    addColumn: function(column) {
-			     	this.$element.append(column.$element);
-			     	initSortable();
-			    },
-			    $element: $('#board .column-container')
-			};
+	var board = {
+	    name: 'Kanban Board',
+	    addColumn: function(column) {
+	      this.$element.append(column.$element);
+	      initSortable();
+	    },
+	    $element: $('#board .column-container')
+	};
 
-			function initSortable() {
-			   	$('.column-card-list').sortable({
-			    	connectWith: '.column-card-list',
-			    	placeholder: 'card-placeholder'
-			   	}).disableSelection();
-			   	/*.card-placeholder {
-					background: red;
-				}*/
-				
- 			}
+	function initSortable() {
+		$('.column-card-list').sortable({
+	    	connectWith: '.column-card-list',
+	    	placeholder: 'card-placeholder'
+		}).disableSelection();
+	}
 
- 			$('.create-column') // czy tu czy gdzie indziej
-				 .click(function(){
-					var name = prompt('Enter a column name');
-					var column = new Column(name);
-				    	board.addColumn(column);
-			});
-	    
-  	}
-
-	  	// CREATING COLUMNS
+	$('.create-column')
+	 	.click(function(){
+			var name = prompt('Enter a column name');
+			var column = new Column(name);
+	    		board.addColumn(column);
+	});
+	
+	// CREATING COLUMNS
 	var todoColumn = new Column('To do');
 	var doingColumn = new Column('Doing');
 	var doneColumn = new Column('Done');
